@@ -14,7 +14,8 @@ using namespace cv;
 
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
-  sliderValue(50)
+  sliderValue(50),
+  pixmap(nullptr)
 {
   QWidget *root = new QWidget(this);
   QWidget *top = new QWidget(this);
@@ -23,6 +24,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
   /* Top Layout */
   QHBoxLayout *topLayout = new QHBoxLayout(top);
+  loadButton = new QPushButton(QString("Reload"), this);
+  connect(loadButton, &QPushButton::clicked, this, &MainWindow::onLoad );
+  topLayout->addWidget(loadButton);
+  
   quitButton = new QPushButton(QString ("Quit"), this);
   quitButton->setToolTip(QString("A tooltip"));
   QFont font ("Courier");
@@ -31,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent) :
   quitButton->setIcon(icon);
   connect(quitButton, &QPushButton::clicked, qApp, &QApplication::quit);
   topLayout->addWidget(quitButton);
+
+
 
   thresholdSlider = new QSlider(Qt::Horizontal, this);
   thresholdSlider->setMinimum(0);
@@ -152,7 +159,17 @@ void MainWindow::defaultLoad()
     Mat dest;
     cvtColor(mat,dest, COLOR_BGR2RGB);
     const QImage image((uchar *) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888);
-    
+
+
     QPixmap pix = QPixmap::fromImage(image);
+    if (pixmap != nullptr) {
+        scene->removeItem(pixmap);
+    }
     pixmap = scene->addPixmap(pix);
 }
+
+void MainWindow::onLoad() {
+
+    qDebug() << "Reloading"; 
+    defaultLoad();
+} 

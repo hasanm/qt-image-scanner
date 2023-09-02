@@ -44,6 +44,7 @@ protected:
 private slots:
     void basicThreshold();
     void onSlider(int value);
+    void onLoad();
 
 
 private:
