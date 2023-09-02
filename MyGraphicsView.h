@@ -4,6 +4,8 @@
 #include <QtWidgets>
 #include "mainwindow.h"
 
+class MainWindow; 
+
 class MyGraphicsView : public QGraphicsView
 {
     Q_OBJECT
