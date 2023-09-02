@@ -53,10 +53,27 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(thresholdButton, &QPushButton::clicked, this, &MainWindow::basicThreshold);
   topLayout->addWidget(thresholdButton);
 
+  zoomInButton = new QPushButton(QString("Zoom In"), this);
+  connect(zoomInButton, &QPushButton::clicked, this, &MainWindow::onZoomIn);
+  topLayout->addWidget(zoomInButton);
+
+  zoomOutButton = new QPushButton(QString("Zoom Out"), this);
+  connect(zoomOutButton, &QPushButton::clicked, this, &MainWindow::onZoomOut);
+  topLayout->addWidget(zoomOutButton);   
+
   /* Second Layout */
   QHBoxLayout *secondLayout = new QHBoxLayout(secondLine);
   dimensionLabel = new QLabel(QString("No Image Loaded"), this);
   secondLayout->addWidget(dimensionLabel);
+
+  normalizeButton = new QPushButton(QString("Normalize"), this);
+  connect(normalizeButton, &QPushButton::clicked, this, &MainWindow::onNormalize);
+  secondLayout->addWidget(normalizeButton);
+
+  grayButton = new QPushButton(QString ("Gray"), this);
+  connect(grayButton, &QPushButton::clicked, this, &MainWindow::onGray);
+  secondLayout->addWidget(grayButton);
+  
 
 
 
@@ -172,4 +189,47 @@ void MainWindow::onLoad() {
 
     qDebug() << "Reloading"; 
     defaultLoad();
+}
+
+void MainWindow::onNormalize() {
+    Mat channel[3];
+    Mat normalized;
+    Mat gray; 
+    
+
+    Mat mDil, mBlur, mDiff, mNorm;
+    split(mat, channel);
+    normalized.create(mat.size(), mat.type());
+
+    for (int i=0; i < 3; i++) {
+        dilate(channel[i], mDil, Mat::ones(7,7, CV_8UC1), Point(-1, -1));
+        medianBlur(mDil, mBlur, 21);
+        absdiff(channel[i], mBlur, mDiff);
+        mDiff = 255 - mDiff;
+        normalize(mDiff, mNorm, 0, 255, NORM_MINMAX, CV_8UC1);
+        insertChannel(mNorm, normalized, i); 
+    }
+
+    cvtColor(normalized, gray, COLOR_BGR2GRAY);
+    setImageGray(gray);
+}
+
+void MainWindow::onGray() {
+    Mat gray;
+    
+    cvtColor(mat, gray, COLOR_BGR2GRAY);
+    setImageGray(gray);    
+}
+
+
+void MainWindow::onZoomIn() {
+    scaleFactor = 1.2;
+    qDebug() << scaleFactor; 
+    view->scale(scaleFactor,scaleFactor);        
+}
+
+void MainWindow::onZoomOut() {
+    scaleFactor = 0.8;
+    qDebug() << scaleFactor;     
+    view->scale(scaleFactor,scaleFactor);
 } 

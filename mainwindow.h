@@ -45,6 +45,10 @@ private slots:
     void basicThreshold();
     void onSlider(int value);
     void onLoad();
+    void onNormalize();
+    void onGray();
+    void onZoomIn();
+    void onZoomOut();
 
 
 private:
@@ -54,6 +58,12 @@ private:
     QPushButton *quitButton;
     QPushButton *loadButton;
     QPushButton *thresholdButton;
+    
+    QPushButton *normalizeButton;
+    QPushButton *grayButton;
+    QPushButton *zoomInButton;
+    QPushButton *zoomOutButton; 
+
     QSlider *thresholdSlider;
   
     QLabel *sliderLabel;
