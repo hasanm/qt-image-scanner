@@ -4,14 +4,14 @@
 #include <QtWidgets>
 #include "mainwindow.h"
 
-class MainWindow; 
+class MainWindow;
 
 class MyGraphicsView : public QGraphicsView
 {
     Q_OBJECT
 
 private :
-    MainWindow *parent; 
+    MainWindow *parent;
 
 protected:
     void mouseDoubleClickEvent(QMouseEvent *event) override;

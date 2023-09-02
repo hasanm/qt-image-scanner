@@ -4,7 +4,7 @@
 
 MyGraphicsView::MyGraphicsView(MainWindow *window)
 {
-    parent = window; 
+    parent = window;
 }
 
 void MyGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
@@ -31,4 +31,3 @@ void MyGraphicsView::mouseMoveEvent(QMouseEvent* event)
     // qDebug() << "GV Moved " << event->pos();
     // parent->onMouseMoved(event);
 }
-

@@ -13,7 +13,7 @@
 #include <opencv2/opencv.hpp>
 #include "MyGraphicsView.h"
 
-class MyGraphicsView; 
+class MyGraphicsView;
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -27,7 +27,7 @@ class QTableWidget;
 class QGridLayout;
 class QScrollArea;
 class QScrollBar;
-class QSlider; 
+class QSlider;
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
@@ -54,27 +54,27 @@ private slots:
 private:
     void setImage(const cv::Mat &src);
     void setImageGray(const cv::Mat &src);
-  
+
     QPushButton *quitButton;
     QPushButton *loadButton;
     QPushButton *thresholdButton;
-    
+
     QPushButton *normalizeButton;
     QPushButton *grayButton;
     QPushButton *zoomInButton;
-    QPushButton *zoomOutButton; 
+    QPushButton *zoomOutButton;
 
     QSlider *thresholdSlider;
-  
+
     QLabel *sliderLabel;
     QLabel *dimensionLabel;
-    int sliderValue; 
-    
+    int sliderValue;
+
     QVBoxLayout *contentLayout;
     QImage image;
     double scaleFactor;
     cv::Mat mat;
-  
+
     // Menu Variables
     QMenu *fileMenu;
     QAction *exitAction;
@@ -83,10 +83,10 @@ private:
     // GraphicsView Items
     MyGraphicsView *view;
     QGraphicsScene *scene;
-    QGraphicsPixmapItem *pixmap; 
+    QGraphicsPixmapItem *pixmap;
 
 
-  
+
 };
 
 #endif // MAINWINDOW_H
