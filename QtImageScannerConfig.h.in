@@ -1,0 +1,2 @@
+#define QtImageScanner_VERSION_MAJOR @QtImageScanner_VERSION_MAJOR@
+#define QtImageScanner_VERSION_MINOR @QtImageScanner_VERSION_MINOR@
