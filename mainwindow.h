@@ -49,6 +49,7 @@ private slots:
     void onGray();
     void onZoomIn();
     void onZoomOut();
+    void onAdaptiveThreshold();
 
 
 private:
@@ -61,6 +62,8 @@ private:
 
     QPushButton *normalizeButton;
     QPushButton *grayButton;
+    QPushButton *adaptiveThresholdButton; 
+
     QPushButton *zoomInButton;
     QPushButton *zoomOutButton;
 

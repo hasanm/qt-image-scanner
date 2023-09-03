@@ -74,6 +74,10 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(grayButton, &QPushButton::clicked, this, &MainWindow::onGray);
   secondLayout->addWidget(grayButton);
 
+  adaptiveThresholdButton = new QPushButton(QString("Adaptive Threshold"), this);
+  connect(adaptiveThresholdButton, &QPushButton::clicked, this, &MainWindow::onAdaptiveThreshold);
+  secondLayout->addWidget(adaptiveThresholdButton);
+
 
 
 
@@ -110,7 +114,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 
-  resize(QGuiApplication::primaryScreen()->availableSize() * 3 / 5);
+  resize(QGuiApplication::primaryScreen()->availableSize() * 5 / 5);
 }
 
 MainWindow::~MainWindow()
@@ -212,6 +216,45 @@ void MainWindow::onNormalize() {
 
     cvtColor(normalized, gray, COLOR_BGR2GRAY);
     setImageGray(gray);
+}
+
+void MainWindow::onAdaptiveThreshold() {
+    Mat channel[3];
+    Mat normalized;
+    Mat gray;
+    Mat dst;
+
+
+    Mat mDil, mBlur, mDiff, mNorm;
+    split(mat, channel);
+    normalized.create(mat.size(), mat.type());
+
+    for (int i=0; i < 3; i++) {
+        dilate(channel[i], mDil, Mat::ones(7,7, CV_8UC1), Point(-1, -1));
+        medianBlur(mDil, mBlur, 21);
+        absdiff(channel[i], mBlur, mDiff);
+        mDiff = 255 - mDiff;
+        normalize(mDiff, mNorm, 0, 255, NORM_MINMAX, CV_8UC1);
+        insertChannel(mNorm, normalized, i);
+    }
+
+    cvtColor(normalized, gray, COLOR_BGR2GRAY);
+
+    int blockSize = 501;
+    int x1, y1 = 100;
+    int x2 = x1 + blockSize;
+    int y2 = y1 + blockSize;
+
+    dst.create(gray.size(), gray.type());
+
+    int max_binary_value = 255;
+    adaptiveThreshold(gray, dst, max_binary_value, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, blockSize, 2);
+
+
+    blur(dst, dst, Size(3,3));
+    dilate(dst,dst, Mat() , Point(-1, -1), 2);
+    erode(dst,dst, Mat() , Point(-1, -1), 2);
+    setImageGray(dst);
 }
 
 void MainWindow::onGray() {
