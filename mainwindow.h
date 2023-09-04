@@ -39,6 +39,10 @@ public:
     ~MainWindow();
     void defaultLoad();
 
+    void onMousePressed(QMouseEvent* event);
+    void onMouseReleased(QMouseEvent* event);
+    void onMouseMoved(QMouseEvent* event);    
+
 protected:
 
 private slots:
@@ -50,6 +54,7 @@ private slots:
     void onZoomIn();
     void onZoomOut();
     void onAdaptiveThreshold();
+    void onCut();
 
 
 private:
@@ -58,6 +63,7 @@ private:
 
     QPushButton *quitButton;
     QPushButton *loadButton;
+    QPushButton *cutButton; 
     QPushButton *thresholdButton;
 
     QPushButton *normalizeButton;
@@ -71,6 +77,8 @@ private:
 
     QLabel *sliderLabel;
     QLabel *dimensionLabel;
+    QLabel *mouseLabel;
+    
     int sliderValue;
 
     QVBoxLayout *contentLayout;
@@ -87,8 +95,12 @@ private:
     MyGraphicsView *view;
     QGraphicsScene *scene;
     QGraphicsPixmapItem *pixmap;
-
-
+    QGraphicsRectItem *rectangle;
+    QPointF top;
+    QPointF bottom;
+    QBrush blueBrush;
+    QPen outlinePen;
+    int active; 
 
 };
 

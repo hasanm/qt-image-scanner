@@ -15,7 +15,10 @@ using namespace cv;
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   sliderValue(50),
-  pixmap(nullptr)
+  pixmap(nullptr),
+  outlinePen(Qt::black),
+  blueBrush(Qt::blue),
+  rectangle(nullptr)
 {
   QWidget *root = new QWidget(this);
   QWidget *top = new QWidget(this);
@@ -53,6 +56,10 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(thresholdButton, &QPushButton::clicked, this, &MainWindow::basicThreshold);
   topLayout->addWidget(thresholdButton);
 
+  cutButton = new QPushButton(QString("Cut"), this);
+  connect(cutButton, &QPushButton::clicked, this, &MainWindow::onCut);
+  topLayout->addWidget(cutButton);
+
   zoomInButton = new QPushButton(QString("Zoom In"), this);
   connect(zoomInButton, &QPushButton::clicked, this, &MainWindow::onZoomIn);
   topLayout->addWidget(zoomInButton);
@@ -65,6 +72,9 @@ MainWindow::MainWindow(QWidget *parent) :
   QHBoxLayout *secondLayout = new QHBoxLayout(secondLine);
   dimensionLabel = new QLabel(QString("No Image Loaded"), this);
   secondLayout->addWidget(dimensionLabel);
+
+  mouseLabel = new QLabel(QString("Mouse: "), this);
+  secondLayout->addWidget(mouseLabel);
 
   normalizeButton = new QPushButton(QString("Normalize"), this);
   connect(normalizeButton, &QPushButton::clicked, this, &MainWindow::onNormalize);
@@ -87,10 +97,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
   scene = new QGraphicsScene(this);
   view = new MyGraphicsView(this);
+  view->setMouseTracking(true);
   view->setScene(scene);
   view->scale(scaleFactor,scaleFactor);
   view->setBackgroundRole(QPalette::Base);
   contentLayout->addWidget(view);
+  active = 0; 
 
   /* Root Layout */
   QVBoxLayout *rootLayout = new QVBoxLayout(root);
@@ -124,15 +136,15 @@ MainWindow::~MainWindow()
 
 void MainWindow::setImage(const Mat &src)
 {
+    Mat dest;
+    cvtColor(src, dest,COLOR_BGR2RGB);
+    const QImage newImage((uchar*) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888);
 
-  Mat dest;
-  cvtColor(src, dest,COLOR_BGR2RGB);
-  const QImage newImage((uchar*) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888);
-
-  image = newImage;
-  QPixmap pix;
-  pix = QPixmap::fromImage(image);
-  QRect r1(100, 200, 11, 16);
+    image = newImage;
+    QPixmap pix;
+    pix = QPixmap::fromImage(image);
+    scene->removeItem(pixmap);
+    pixmap = scene->addPixmap(pix);
 }
 
 void MainWindow::setImageGray(const Mat &src)
@@ -232,29 +244,13 @@ void MainWindow::onAdaptiveThreshold() {
     for (int i=0; i < 3; i++) {
         dilate(channel[i], mDil, Mat::ones(7,7, CV_8UC1), Point(-1, -1));
         medianBlur(mDil, mBlur, 21);
-        absdiff(channel[i], mBlur, mDiff);
-        mDiff = 255 - mDiff;
+        absdiff(mBlur, channel[i], mDiff);
+        absdiff(255, mDiff, mDiff);
+
         normalize(mDiff, mNorm, 0, 255, NORM_MINMAX, CV_8UC1);
         insertChannel(mNorm, normalized, i);
     }
-
-    cvtColor(normalized, gray, COLOR_BGR2GRAY);
-
-    int blockSize = 501;
-    int x1, y1 = 100;
-    int x2 = x1 + blockSize;
-    int y2 = y1 + blockSize;
-
-    dst.create(gray.size(), gray.type());
-
-    int max_binary_value = 255;
-    adaptiveThreshold(gray, dst, max_binary_value, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, blockSize, 2);
-
-
-    blur(dst, dst, Size(3,3));
-    dilate(dst,dst, Mat() , Point(-1, -1), 2);
-    erode(dst,dst, Mat() , Point(-1, -1), 2);
-    setImageGray(dst);
+    setImage(normalized);
 }
 
 void MainWindow::onGray() {
@@ -274,3 +270,60 @@ void MainWindow::onZoomOut() {
     scaleFactor = 0.8;
     view->scale(scaleFactor,scaleFactor);
 }
+
+
+void MainWindow::onMousePressed(QMouseEvent* event) {
+    active = 1;
+    top = view->mapToScene(event->pos());
+    bottom = top + QPoint (100, 100);
+    outlinePen.setWidth(2);
+    if (rectangle != nullptr) {
+        scene->removeItem(rectangle);
+    }
+    
+    rectangle = new QGraphicsRectItem(QRectF(top, bottom));    
+    scene->addItem(rectangle);
+}
+void MainWindow::onMouseReleased(QMouseEvent* event) {
+    active = 0;
+}
+void MainWindow::onMouseMoved(QMouseEvent* event) {
+    if (active == 1) {
+        if (rectangle != nullptr) {
+            scene->removeItem(rectangle);
+        }
+        bottom = view->mapToScene(event->pos());
+        rectangle = new QGraphicsRectItem(QRectF(top, bottom));
+        scene->addItem(rectangle);
+
+        QPointF pos = view->mapToScene(event->pos());
+        QPoint q = pos.toPoint();
+        QPoint p = top.toPoint();
+        mouseLabel->setText(QString("Mouse : %1,%2 -> %3,%4").arg(p.x()).arg(p.y()).arg(q.x()).arg(q.y()));        
+    }
+}
+
+void MainWindow::onCut() {
+    QPoint p = top.toPoint();
+    QPoint q = bottom.toPoint();
+
+    mat = imread("/data/homeworks/test_data/11.JPG", IMREAD_COLOR);
+    Rect myRoi(Point(p.x(), p.y()),Point(q.x(), q.y()));
+    Mat cropped(mat,myRoi);
+    Mat dest;
+
+    
+    cvtColor(cropped,dest, COLOR_BGR2RGB);
+    const QImage image((uchar *) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888);
+
+    QPixmap pix = QPixmap::fromImage(image);
+    if (pixmap != nullptr) {
+        scene->removeItem(pixmap);
+    }
+    pixmap = scene->addPixmap(pix);
+    if (rectangle != nullptr) {
+        scene->removeItem(rectangle);
+        rectangle = nullptr; 
+    }
+    
+} 

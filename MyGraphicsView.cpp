@@ -15,19 +15,19 @@ void MyGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
 void MyGraphicsView::mousePressEvent(QMouseEvent* event)
 {
     // qDebug() << "GV Mouse Pressed " << event->pos();
-    // parent->onMousePressed(event);
+    parent->onMousePressed(event);
 }
 
 
 void MyGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 {
     // qDebug() << "GV Mouse Released " << event->pos();
-    // parent->onMouseReleased(event);
+    parent->onMouseReleased(event);
 }
 
 
 void MyGraphicsView::mouseMoveEvent(QMouseEvent* event)
 {
     // qDebug() << "GV Moved " << event->pos();
-    // parent->onMouseMoved(event);
+    parent->onMouseMoved(event);
 }
