@@ -55,6 +55,8 @@ private slots:
     void onZoomOut();
     void onAdaptiveThreshold();
     void onCut();
+    void onQuitShortcut();
+    void onShadeCorrection();
 
 
 private:
@@ -68,7 +70,9 @@ private:
 
     QPushButton *normalizeButton;
     QPushButton *grayButton;
-    QPushButton *adaptiveThresholdButton; 
+    QPushButton *adaptiveThresholdButton;
+    QPushButton *shadeCorrectionButton;
+    QLineEdit *matrixSizeEdit;
 
     QPushButton *zoomInButton;
     QPushButton *zoomOutButton;
@@ -80,6 +84,8 @@ private:
     QLabel *mouseLabel;
     
     int sliderValue;
+
+    QShortcut *quitShortcut;    
 
     QVBoxLayout *contentLayout;
     QImage image;

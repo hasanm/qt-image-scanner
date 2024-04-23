@@ -88,6 +88,15 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(adaptiveThresholdButton, &QPushButton::clicked, this, &MainWindow::onAdaptiveThreshold);
   secondLayout->addWidget(adaptiveThresholdButton);
 
+  matrixSizeEdit = new QLineEdit(this);
+  matrixSizeEdit->setValidator( new QIntValidator(15, 5001, this) );
+  matrixSizeEdit->setText(QString("1001"));
+  secondLayout->addWidget(matrixSizeEdit);
+
+  shadeCorrectionButton = new QPushButton(QString("ShadeCorrection"), this);
+  connect(shadeCorrectionButton, &QPushButton::clicked, this, &MainWindow::onShadeCorrection);
+  secondLayout->addWidget(shadeCorrectionButton);
+
 
 
 
@@ -124,9 +133,11 @@ MainWindow::MainWindow(QWidget *parent) :
   fileMenu->addSeparator();
   fileMenu->addAction(exitAction);
 
-
-
-  resize(QGuiApplication::primaryScreen()->availableSize() * 5 / 5);
+  quitShortcut = new QShortcut(QKeySequence(tr("Ctrl+W", "Close")),
+                               this);
+  connect(quitShortcut, &QShortcut::activated, this, &MainWindow::onQuitShortcut);
+  
+  resize(QGuiApplication::primaryScreen()->availableSize()  / 2);
 }
 
 MainWindow::~MainWindow()
@@ -326,4 +337,19 @@ void MainWindow::onCut() {
         rectangle = nullptr; 
     }
     
+}
+
+void MainWindow::onShadeCorrection() {
+    Mat gray, dst, result;
+    cvtColor(mat, gray, COLOR_BGR2GRAY);
+    int matrixSize = matrixSizeEdit->text().toInt();
+    GaussianBlur(gray, dst, Size(matrixSize, matrixSize), 255);
+    divide(gray, dst, result, 255);
+
+    setImage(result);
 } 
+
+void MainWindow::onQuitShortcut()
+{
+  qApp->quit();
+}
