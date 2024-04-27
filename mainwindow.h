@@ -41,7 +41,7 @@ public:
 
     void onMousePressed(QMouseEvent* event);
     void onMouseReleased(QMouseEvent* event);
-    void onMouseMoved(QMouseEvent* event);    
+    void onMouseMoved(QMouseEvent* event);
 
 protected:
 
@@ -57,6 +57,7 @@ private slots:
     void onCut();
     void onQuitShortcut();
     void onShadeCorrection();
+    void onTextChanged(const QString &item);
 
 
 private:
@@ -65,7 +66,7 @@ private:
 
     QPushButton *quitButton;
     QPushButton *loadButton;
-    QPushButton *cutButton; 
+    QPushButton *cutButton;
     QPushButton *thresholdButton;
 
     QPushButton *normalizeButton;
@@ -82,15 +83,18 @@ private:
     QLabel *sliderLabel;
     QLabel *dimensionLabel;
     QLabel *mouseLabel;
-    
+
     int sliderValue;
 
-    QShortcut *quitShortcut;    
+    QShortcut *quitShortcut;
 
-    QVBoxLayout *contentLayout;
+    QHBoxLayout *contentLayout;
     QImage image;
     double scaleFactor;
     cv::Mat mat;
+    QString fileName;
+
+    QListWidget *fileListWidget;
 
     // Menu Variables
     QMenu *fileMenu;
@@ -106,7 +110,7 @@ private:
     QPointF bottom;
     QBrush blueBrush;
     QPen outlinePen;
-    int active; 
+    int active;
 
 };
 

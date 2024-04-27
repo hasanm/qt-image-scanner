@@ -101,8 +101,22 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
   /* Content Layout */
-  contentLayout = new QVBoxLayout(content);
+  contentLayout = new QHBoxLayout(content);
   scaleFactor = 0.18;
+
+  fileListWidget = new QListWidget(this);
+
+  new QListWidgetItem(tr("/data/homeworks/test_data/11.JPG"), fileListWidget);
+  new QListWidgetItem(tr("/data/homeworks/test_data/1.JPG" ), fileListWidget);
+  new QListWidgetItem(tr("/data/homeworks/test_data/2.JPG" ), fileListWidget);
+  new QListWidgetItem(tr("/data/homeworks/test_data/3.JPG" ), fileListWidget);
+  new QListWidgetItem(tr("/data/homeworks/test_data/4.JPG" ), fileListWidget);
+  new QListWidgetItem(tr("/data/homeworks/test_data/5.JPG" ), fileListWidget);
+
+  connect(fileListWidget, &QListWidget::currentTextChanged,
+          this, &MainWindow::onTextChanged);
+
+  contentLayout->addWidget(fileListWidget);
 
   scene = new QGraphicsScene(this);
   view = new MyGraphicsView(this);
@@ -111,7 +125,7 @@ MainWindow::MainWindow(QWidget *parent) :
   view->scale(scaleFactor,scaleFactor);
   view->setBackgroundRole(QPalette::Base);
   contentLayout->addWidget(view);
-  active = 0; 
+  active = 0;
 
   /* Root Layout */
   QVBoxLayout *rootLayout = new QVBoxLayout(root);
@@ -136,7 +150,7 @@ MainWindow::MainWindow(QWidget *parent) :
   quitShortcut = new QShortcut(QKeySequence(tr("Ctrl+W", "Close")),
                                this);
   connect(quitShortcut, &QShortcut::activated, this, &MainWindow::onQuitShortcut);
-  
+
   resize(QGuiApplication::primaryScreen()->availableSize()  / 2);
 }
 
@@ -291,8 +305,8 @@ void MainWindow::onMousePressed(QMouseEvent* event) {
     if (rectangle != nullptr) {
         scene->removeItem(rectangle);
     }
-    
-    rectangle = new QGraphicsRectItem(QRectF(top, bottom));    
+
+    rectangle = new QGraphicsRectItem(QRectF(top, bottom));
     scene->addItem(rectangle);
 }
 void MainWindow::onMouseReleased(QMouseEvent* event) {
@@ -310,7 +324,7 @@ void MainWindow::onMouseMoved(QMouseEvent* event) {
         QPointF pos = view->mapToScene(event->pos());
         QPoint q = pos.toPoint();
         QPoint p = top.toPoint();
-        mouseLabel->setText(QString("Mouse : %1,%2 -> %3,%4").arg(p.x()).arg(p.y()).arg(q.x()).arg(q.y()));        
+        mouseLabel->setText(QString("Mouse : %1,%2 -> %3,%4").arg(p.x()).arg(p.y()).arg(q.x()).arg(q.y()));
     }
 }
 
@@ -323,7 +337,7 @@ void MainWindow::onCut() {
     Mat cropped(mat,myRoi);
     Mat dest;
 
-    
+
     cvtColor(cropped,dest, COLOR_BGR2RGB);
     const QImage image((uchar *) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888);
 
@@ -334,9 +348,9 @@ void MainWindow::onCut() {
     pixmap = scene->addPixmap(pix);
     if (rectangle != nullptr) {
         scene->removeItem(rectangle);
-        rectangle = nullptr; 
+        rectangle = nullptr;
     }
-    
+
 }
 
 void MainWindow::onShadeCorrection() {
@@ -347,9 +361,28 @@ void MainWindow::onShadeCorrection() {
     divide(gray, dst, result, 255);
 
     setImage(result);
-} 
+}
 
 void MainWindow::onQuitShortcut()
 {
   qApp->quit();
+}
+
+
+void MainWindow::onTextChanged(const QString &item)
+{
+    qDebug() << item;
+    fileName = item;
+
+    mat = imread(fileName.toStdString(), IMREAD_COLOR);
+    Mat dest;
+    cvtColor(mat,dest, COLOR_BGR2RGB);
+    const QImage image((uchar *) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888);
+
+
+    QPixmap pix = QPixmap::fromImage(image);
+    if (pixmap != nullptr) {
+        scene->removeItem(pixmap);
+    }
+    pixmap = scene->addPixmap(pix);
 }
