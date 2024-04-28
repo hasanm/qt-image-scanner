@@ -93,6 +93,7 @@ private:
     double scaleFactor;
     cv::Mat mat;
     QString fileName;
+    QString tmpFileName; 
 
     QListWidget *fileListWidget;
 

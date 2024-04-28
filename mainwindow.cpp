@@ -12,13 +12,18 @@
 
 using namespace cv;
 
+
+static const char INPUT_STRING[] = "/tmp/in.png";
+static const char OUTPUT_STRING[] = "/tmp/out.png";
+
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
   sliderValue(50),
   pixmap(nullptr),
   outlinePen(Qt::black),
   blueBrush(Qt::blue),
-  rectangle(nullptr)
+  rectangle(nullptr),
+  tmpFileName(QString("/tmp/out.png"))
 {
   QWidget *root = new QWidget(this);
   QWidget *top = new QWidget(this);
@@ -112,6 +117,8 @@ MainWindow::MainWindow(QWidget *parent) :
   new QListWidgetItem(tr("/data/homeworks/test_data/3.JPG" ), fileListWidget);
   new QListWidgetItem(tr("/data/homeworks/test_data/4.JPG" ), fileListWidget);
   new QListWidgetItem(tr("/data/homeworks/test_data/5.JPG" ), fileListWidget);
+
+  fileListWidget->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
 
   connect(fileListWidget, &QListWidget::currentTextChanged,
           this, &MainWindow::onTextChanged);
@@ -332,9 +339,11 @@ void MainWindow::onCut() {
     QPoint p = top.toPoint();
     QPoint q = bottom.toPoint();
 
-    mat = imread("/data/homeworks/test_data/11.JPG", IMREAD_COLOR);
+    mat = imread(INPUT_STRING, IMREAD_COLOR);
     Rect myRoi(Point(p.x(), p.y()),Point(q.x(), q.y()));
     Mat cropped(mat,myRoi);
+    imwrite(INPUT_STRING, cropped);    
+    imwrite(OUTPUT_STRING, cropped);
     Mat dest;
 
 
@@ -375,6 +384,8 @@ void MainWindow::onTextChanged(const QString &item)
     fileName = item;
 
     mat = imread(fileName.toStdString(), IMREAD_COLOR);
+    imwrite(INPUT_STRING, mat);
+    imwrite(OUTPUT_STRING, mat);
     Mat dest;
     cvtColor(mat,dest, COLOR_BGR2RGB);
     const QImage image((uchar *) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888);
