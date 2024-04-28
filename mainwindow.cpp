@@ -13,8 +13,9 @@
 using namespace cv;
 
 
-static const char INPUT_STRING[] = "/tmp/in.png";
-static const char OUTPUT_STRING[] = "/tmp/out.png";
+static const char INPUT_STRING[] = "/data/tmp_images/in.png";
+static const char OUTPUT_STRING[] = "/data/tmp_images/out.png";
+static const char OUTPUT_PREFIX[] = "/data/tmp_images/";
 
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
@@ -234,10 +235,9 @@ void MainWindow::defaultLoad()
 }
 
 void MainWindow::onLoad() {
-
     qDebug() << "Reloading";
-    defaultLoad();
 }
+
 
 void MainWindow::onNormalize() {
     Mat channel[3];
@@ -263,6 +263,10 @@ void MainWindow::onNormalize() {
 
     cvtColor(normalized, gray, COLOR_BGR2GRAY);
     setImageGray(gray);
+    auto const pos = fileName.toStdString().find_last_of('/');
+    auto const leaf = fileName.toStdString().substr(pos + 1);
+    String input_prefix(OUTPUT_PREFIX);
+    imwrite(input_prefix + leaf, gray);
 }
 
 void MainWindow::onAdaptiveThreshold() {
@@ -345,7 +349,8 @@ void MainWindow::onCut() {
     mat = imread(INPUT_STRING, IMREAD_COLOR);
     Rect myRoi(Point(p.x(), p.y()),Point(q.x(), q.y()));
     Mat cropped(mat,myRoi);
-    imwrite(INPUT_STRING, cropped);    
+    imwrite(INPUT_STRING, cropped);
+    mat = imread(INPUT_STRING, IMREAD_COLOR);    
     Mat dest;
 
 
