@@ -219,7 +219,7 @@ void MainWindow::onSlider(int value) {
 
 void MainWindow::defaultLoad()
 {
-    mat = imread("/data/homeworks/test_data/11.JPG", IMREAD_COLOR);
+    mat = imread(INPUT_STRING, IMREAD_COLOR);
 
     Mat dest;
     cvtColor(mat,dest, COLOR_BGR2RGB);
@@ -246,6 +246,9 @@ void MainWindow::onNormalize() {
 
 
     Mat mDil, mBlur, mDiff, mNorm;
+
+    mat = imread(INPUT_STRING, IMREAD_COLOR);
+    
     split(mat, channel);
     normalized.create(mat.size(), mat.type());
 
@@ -343,7 +346,6 @@ void MainWindow::onCut() {
     Rect myRoi(Point(p.x(), p.y()),Point(q.x(), q.y()));
     Mat cropped(mat,myRoi);
     imwrite(INPUT_STRING, cropped);    
-    imwrite(OUTPUT_STRING, cropped);
     Mat dest;
 
 
@@ -364,6 +366,7 @@ void MainWindow::onCut() {
 
 void MainWindow::onShadeCorrection() {
     Mat gray, dst, result;
+    mat = imread(INPUT_STRING, IMREAD_COLOR);
     cvtColor(mat, gray, COLOR_BGR2GRAY);
     int matrixSize = matrixSizeEdit->text().toInt();
     GaussianBlur(gray, dst, Size(matrixSize, matrixSize), 255);
@@ -385,7 +388,6 @@ void MainWindow::onTextChanged(const QString &item)
 
     mat = imread(fileName.toStdString(), IMREAD_COLOR);
     imwrite(INPUT_STRING, mat);
-    imwrite(OUTPUT_STRING, mat);
     Mat dest;
     cvtColor(mat,dest, COLOR_BGR2RGB);
     const QImage image((uchar *) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888);
