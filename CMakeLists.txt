@@ -9,7 +9,7 @@ set(CMAKE_AUTOUIC ON)
 
 
 
-project(QtImageScanner VERSION 1.0 LANGUAGES CXX)
+project(${CMAKE_PROJECT_NAME} VERSION 1.0 LANGUAGES CXX)
 
 configure_file(QtImageScannerConfig.h.in QtImageScannerConfig.h)
 
@@ -22,9 +22,9 @@ add_executable(QtImageScanner
         MyGraphicsView.cpp
 )
 
-target_include_directories(QtImageScanner PUBLIC
+target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
                            "${PROJECT_BINARY_DIR}"
                            "${OpenCV_INCLUDE_DIRS}")
 
 
-target_link_libraries(QtImageScanner Qt5::Widgets "${OpenCV_LIBS}")
+target_link_libraries(${CMAKE_PROJECT_NAME} Qt5::Widgets "${OpenCV_LIBS}")
